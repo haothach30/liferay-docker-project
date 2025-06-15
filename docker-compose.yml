@@ -1,1 +1,41 @@
- 
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.5
+    container_name: liferay-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: liferay
+      MYSQL_USER: liferay
+      MYSQL_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - liferay-net
+
+  liferay:
+    image: liferay/portal:7.4.3.104-ga104
+    container_name: liferay
+    restart: unless-stopped
+    environment:
+      LIFERAY_JDBC_PERIOD_DEFAULT_PERIOD_URL: jdbc:mysql://db:3306/liferay?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&serverTimezone=Asia/Ho_Chi_Minh
+      LIFERAY_JDBC_PERIOD_DEFAULT_PERIOD_DRIVERCLASSNAME: com.mysql.cj.jdbc.Driver
+      LIFERAY_JDBC_PERIOD_DEFAULT_PERIOD_USERNAME: liferay
+      LIFERAY_JDBC_PERIOD_DEFAULT_PERIOD_PASSWORD: 123456
+    ports:
+      - "8080:8080" # Web portal
+    depends_on:
+      - db
+    networks:
+      - liferay-net
+    volumes:
+      - liferay_data:/opt/liferay/data
+
+volumes:
+  db_data:
+  liferay_data:
+
+networks:
+  liferay-net:
